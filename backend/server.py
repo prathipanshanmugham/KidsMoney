@@ -353,6 +353,19 @@ async def get_me(current=Depends(get_current_user)):
         return {"id": current["id"], "name": current["name"], "role": "kid", "avatar": current.get("avatar"), "ui_theme": current.get("ui_theme", "neutral"), "level": current.get("level"), "xp": current.get("xp", 0), "credit_score": current.get("credit_score", 500), "age": current.get("age")}
     return {"id": current["id"], "email": current["email"], "full_name": current["full_name"], "role": "parent"}
 
+
+@api.post("/auth/kid-login")
+async def kid_login(req: KidLoginRequest):
+    parent = await db.users.find_one({"email": req.parent_email.lower()}, {"_id": 0})
+    if not parent:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    kid = await db.kids.find_one({"parent_id": parent["id"], "name": {"$regex": f"^{req.kid_name}$", "$options": "i"}, "pin": req.pin}, {"_id": 0})
+    if not kid:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = create_token(parent["id"], "kid", kid["id"])
+    return {"token": token, "kid": {"id": kid["id"], "name": kid["name"], "age": kid["age"], "avatar": kid["avatar"], "ui_theme": kid.get("ui_theme", "neutral"), "level": kid["level"], "xp": kid.get("xp", 0), "credit_score": kid.get("credit_score", 500)}}
+
+
 # ==================== KIDS ROUTES ====================
 
 @api.post("/kids")
