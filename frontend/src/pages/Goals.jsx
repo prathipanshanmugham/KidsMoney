@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Target, Plus, Trash2, ArrowUpRight } from 'lucide-react';
@@ -82,7 +82,7 @@ export default function Goals() {
             </Button>
           </DialogTrigger>
           <DialogContent className="rounded-3xl max-w-md">
-            <DialogHeader><DialogTitle className="font-heading text-xl">Create Goal</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="font-heading text-xl">Create Goal</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Set a savings target</DialogDescription></DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4 mt-2">
               <div className="space-y-2">
                 <Label>Goal Title</Label>
@@ -150,7 +150,7 @@ export default function Goals() {
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="rounded-3xl max-w-sm">
-                          <DialogHeader><DialogTitle className="font-heading">Add Savings</DialogTitle></DialogHeader>
+                          <DialogHeader><DialogTitle className="font-heading">Add Savings</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Contribute to this goal</DialogDescription></DialogHeader>
                           <div className="space-y-4 mt-2">
                             <div className="space-y-2">
                               <Label>Amount (coins)</Label>

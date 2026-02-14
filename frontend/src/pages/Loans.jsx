@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Banknote, Plus, CreditCard, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
@@ -98,7 +98,7 @@ export default function Loans() {
             </Button>
           </DialogTrigger>
           <DialogContent className="rounded-3xl max-w-md">
-            <DialogHeader><DialogTitle className="font-heading text-xl">Request Loan</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="font-heading text-xl">Request Loan</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Borrow coins and learn about EMI</DialogDescription></DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4 mt-2">
               <div className="space-y-2">
                 <Label>Purpose</Label>

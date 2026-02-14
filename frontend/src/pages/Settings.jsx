@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Sun, Moon, User, Pencil, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -118,7 +118,7 @@ export default function Settings() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-3xl max-w-md">
-                <DialogHeader><DialogTitle className="font-heading text-xl">Add Child</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle className="font-heading text-xl">Add Child</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Create a new child profile</DialogDescription></DialogHeader>
                 <form onSubmit={handleAdd} className="space-y-4 mt-2">
                   <div className="space-y-2">
                     <Label>Name</Label>
@@ -190,7 +190,7 @@ export default function Settings() {
       {/* Edit Kid Dialog */}
       <Dialog open={!!editKid} onOpenChange={(v) => { if (!v) setEditKid(null); }}>
         <DialogContent className="rounded-3xl max-w-md">
-          <DialogHeader><DialogTitle className="font-heading text-xl">Edit Child</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-heading text-xl">Edit Child</DialogTitle><DialogDescription className="text-sm text-muted-foreground">Update child details</DialogDescription></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label>Name</Label>

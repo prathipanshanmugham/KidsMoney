@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { BookOpen, CheckCircle, Star, ArrowRight, Award } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -155,6 +155,7 @@ export default function Learning() {
                   {activeStory.category}
                 </Badge>
                 <DialogTitle className="font-heading text-2xl">{activeStory.title}</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">{activeStory.description}</DialogDescription>
               </DialogHeader>
               <p className="text-sm text-muted-foreground leading-relaxed mt-4 whitespace-pre-line">{activeStory.content}</p>
               <Button className="w-full rounded-full h-12 font-semibold mt-6" onClick={handleStartQuiz} data-testid="start-quiz-btn">
@@ -167,6 +168,7 @@ export default function Learning() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-heading text-xl">Quiz Time!</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">Answer the questions below</DialogDescription>
               </DialogHeader>
               <div className="space-y-6 mt-4">
                 {activeStory.questions.map((q, qi) => (
