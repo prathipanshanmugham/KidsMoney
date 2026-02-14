@@ -785,6 +785,177 @@ async def kid_dashboard(kid_id: str, user=Depends(verify_parent)):
         }
     }
 
+
+# ==================== KID-SPECIFIC ROUTES ====================
+
+@api.get("/kid/me")
+async def kid_me(kid=Depends(verify_kid)):
+    wallet = await db.wallets.find_one({"kid_id": kid["id"]}, {"_id": 0})
+    level_info = get_level_for_xp(kid.get("xp", 0))
+    next_level = get_next_level(level_info["level"])
+    return {**kid, "wallet": wallet, "level_info": level_info, "next_level": next_level}
+
+@api.get("/kid/dashboard")
+async def kid_dashboard_data(kid=Depends(verify_kid)):
+    kid_fresh = await db.kids.find_one({"id": kid["id"]}, {"_id": 0})
+    wallet = await db.wallets.find_one({"kid_id": kid["id"]}, {"_id": 0})
+    active_tasks = await db.tasks.find({"kid_id": kid["id"], "status": {"$in": ["pending", "completed"]}}, {"_id": 0}).to_list(50)
+    recent_txns = await db.transactions.find({"kid_id": kid["id"]}, {"_id": 0}).sort("created_at", -1).to_list(10)
+    active_goals = await db.goals.find({"kid_id": kid["id"], "status": "active"}, {"_id": 0}).to_list(50)
+    active_sips = await db.sips.find({"kid_id": kid["id"], "status": "active"}, {"_id": 0}).to_list(50)
+    active_loans = await db.loans.find({"kid_id": kid["id"], "status": {"$in": ["pending", "active"]}}, {"_id": 0}).to_list(50)
+    learning = await db.learning_progress.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)
+    level_info = get_level_for_xp(kid_fresh.get("xp", 0))
+    next_level = get_next_level(level_info["level"])
+    return {
+        "kid": kid_fresh, "wallet": wallet, "level_info": level_info, "next_level": next_level,
+        "active_tasks": active_tasks, "recent_transactions": recent_txns, "active_goals": active_goals,
+        "active_sips": active_sips, "active_loans": active_loans, "learning_progress": learning,
+        "stats": {
+            "total_tasks_completed": await db.tasks.count_documents({"kid_id": kid["id"], "status": "approved"}),
+            "total_stories_read": len(learning), "active_goals_count": len(active_goals), "active_sips_count": len(active_sips),
+        }
+    }
+
+@api.get("/kid/tasks")
+async def kid_tasks(kid=Depends(verify_kid)):
+    return await db.tasks.find({"kid_id": kid["id"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+@api.put("/kid/tasks/{task_id}/complete")
+async def kid_complete_task(task_id: str, kid=Depends(verify_kid)):
+    task = await db.tasks.find_one({"id": task_id, "kid_id": kid["id"]}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if task["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Task is not pending")
+    if task["approval_required"]:
+        await db.tasks.update_one({"id": task_id}, {"$set": {"status": "completed"}})
+    else:
+        await db.tasks.update_one({"id": task_id}, {"$set": {"status": "approved"}})
+        await update_wallet_balance(kid["id"], task["reward_amount"], "credit")
+        await add_transaction(kid["id"], "credit", task["reward_amount"], f"Task reward: {task['title']}", "task", task_id)
+        await add_xp(kid["id"], 10)
+        await update_credit_score(kid["id"], 10)
+    return await db.tasks.find_one({"id": task_id}, {"_id": 0})
+
+@api.get("/kid/wallet")
+async def kid_wallet(kid=Depends(verify_kid)):
+    return await db.wallets.find_one({"kid_id": kid["id"]}, {"_id": 0})
+
+@api.get("/kid/transactions")
+async def kid_transactions(kid=Depends(verify_kid)):
+    return await db.transactions.find({"kid_id": kid["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+@api.get("/kid/goals")
+async def kid_goals(kid=Depends(verify_kid)):
+    return await db.goals.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)
+
+@api.put("/kid/goals/{goal_id}/contribute")
+async def kid_contribute_goal(goal_id: str, req: GoalContribute, kid=Depends(verify_kid)):
+    goal = await db.goals.find_one({"id": goal_id, "kid_id": kid["id"]}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if goal["status"] != "active":
+        raise HTTPException(status_code=400, detail="Goal is not active")
+    await update_wallet_balance(kid["id"], req.amount, "save")
+    new_saved = goal["saved_amount"] + req.amount
+    status = "completed" if new_saved >= goal["target_amount"] else "active"
+    await db.goals.update_one({"id": goal_id}, {"$set": {"saved_amount": new_saved, "status": status}})
+    await add_transaction(kid["id"], "debit", req.amount, f"Goal savings: {goal['title']}", "goal", goal_id)
+    await add_xp(kid["id"], 20)
+    await update_credit_score(kid["id"], 5)
+    return await db.goals.find_one({"id": goal_id}, {"_id": 0})
+
+@api.get("/kid/sip")
+async def kid_sips(kid=Depends(verify_kid)):
+    return await db.sips.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)
+
+@api.post("/kid/sip/{sip_id}/pay")
+async def kid_pay_sip(sip_id: str, kid=Depends(verify_kid)):
+    sip = await db.sips.find_one({"id": sip_id, "kid_id": kid["id"]}, {"_id": 0})
+    if not sip:
+        raise HTTPException(status_code=404, detail="SIP not found")
+    if sip["status"] != "active":
+        raise HTTPException(status_code=400, detail="SIP is not active")
+    await update_wallet_balance(kid["id"], sip["amount"], "save")
+    new_invested = sip["total_invested"] + sip["amount"]
+    payments = sip["payments_made"] + 1
+    monthly_rate = sip["interest_rate"] / 100 / 12
+    new_value = sip["amount"] * ((math.pow(1 + monthly_rate, payments) - 1) / monthly_rate) * (1 + monthly_rate) if monthly_rate > 0 else new_invested
+    await db.sips.update_one({"id": sip_id}, {"$set": {"total_invested": new_invested, "current_value": round(new_value, 2), "payments_made": payments}})
+    await add_transaction(kid["id"], "debit", sip["amount"], f"SIP payment #{payments}", "sip", sip_id)
+    await add_xp(kid["id"], 15)
+    await update_credit_score(kid["id"], 5)
+    return await db.sips.find_one({"id": sip_id}, {"_id": 0})
+
+@api.get("/kid/loans")
+async def kid_loans(kid=Depends(verify_kid)):
+    return await db.loans.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)
+
+@api.post("/kid/loans/{loan_id}/pay")
+async def kid_pay_loan(loan_id: str, kid=Depends(verify_kid)):
+    loan = await db.loans.find_one({"id": loan_id, "kid_id": kid["id"]}, {"_id": 0})
+    if not loan:
+        raise HTTPException(status_code=404, detail="Loan not found")
+    if loan["status"] != "active":
+        raise HTTPException(status_code=400, detail="Loan is not active")
+    pay_amount = min(loan["emi_amount"], loan["remaining_balance"])
+    await update_wallet_balance(kid["id"], pay_amount, "debit")
+    new_remaining = round(loan["remaining_balance"] - pay_amount, 2)
+    payments = loan["payments_made"] + 1
+    status = "completed" if new_remaining <= 0 else "active"
+    await db.loans.update_one({"id": loan_id}, {"$set": {"remaining_balance": max(0, new_remaining), "payments_made": payments, "status": status}})
+    await add_transaction(kid["id"], "debit", pay_amount, f"EMI payment #{payments}", "emi", loan_id)
+    await add_xp(kid["id"], 15)
+    await update_credit_score(kid["id"], 15)
+    return await db.loans.find_one({"id": loan_id}, {"_id": 0})
+
+@api.get("/kid/learning/stories")
+async def kid_stories(kid=Depends(verify_kid)):
+    return STORIES
+
+@api.get("/kid/learning/progress")
+async def kid_learning_progress(kid=Depends(verify_kid)):
+    return await db.learning_progress.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)
+
+@api.post("/kid/learning/complete")
+async def kid_complete_lesson(req: KidLearningComplete, kid=Depends(verify_kid)):
+    existing = await db.learning_progress.find_one({"kid_id": kid["id"], "story_id": req.story_id}, {"_id": 0})
+    if existing:
+        if req.score > existing.get("score", 0):
+            await db.learning_progress.update_one({"kid_id": kid["id"], "story_id": req.story_id}, {"$set": {"score": req.score}})
+        return {"message": "Progress updated", "already_completed": True}
+    progress = {"id": str(uuid.uuid4()), "kid_id": kid["id"], "story_id": req.story_id, "score": req.score, "completed_at": datetime.now(timezone.utc).isoformat()}
+    await db.learning_progress.insert_one(progress)
+    story = next((s for s in STORIES if s["id"] == req.story_id), None)
+    if story:
+        await add_xp(kid["id"], story["reward_xp"])
+    return {"message": "Lesson completed!", "xp_earned": story["reward_xp"] if story else 0}
+
+@api.get("/kid/achievements")
+async def kid_achievements(kid=Depends(verify_kid)):
+    kid_fresh = await db.kids.find_one({"id": kid["id"]}, {"_id": 0})
+    tasks_done = await db.tasks.count_documents({"kid_id": kid["id"], "status": "approved"})
+    stories_done = await db.learning_progress.count_documents({"kid_id": kid["id"]})
+    goals_done = await db.goals.count_documents({"kid_id": kid["id"], "status": "completed"})
+    sip_payments = sum([s.get("payments_made", 0) for s in await db.sips.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)])
+    loan_payments = sum([l.get("payments_made", 0) for l in await db.loans.find({"kid_id": kid["id"]}, {"_id": 0}).to_list(100)])
+    level_info = get_level_for_xp(kid_fresh.get("xp", 0))
+    badges = []
+    if tasks_done >= 1: badges.append({"name": "First Task", "icon": "check-circle", "desc": "Completed your first task"})
+    if tasks_done >= 10: badges.append({"name": "Task Pro", "icon": "check-square", "desc": "Completed 10 tasks"})
+    if stories_done >= 1: badges.append({"name": "Bookworm", "icon": "book-open", "desc": "Read your first story"})
+    if stories_done >= 5: badges.append({"name": "Scholar", "icon": "graduation-cap", "desc": "Read all stories"})
+    if goals_done >= 1: badges.append({"name": "Goal Getter", "icon": "target", "desc": "Achieved your first goal"})
+    if sip_payments >= 3: badges.append({"name": "Investor", "icon": "trending-up", "desc": "Made 3 SIP payments"})
+    if loan_payments >= 1: badges.append({"name": "Responsible", "icon": "shield", "desc": "Made your first EMI payment"})
+    if kid_fresh.get("credit_score", 500) >= 700: badges.append({"name": "Credit Star", "icon": "star", "desc": "Credit score above 700"})
+    for lvl in LEVELS:
+        if kid_fresh.get("level", 1) >= lvl["level"]:
+            badges.append({"name": f"Level {lvl['level']}: {lvl['name']}", "icon": lvl["icon"], "desc": f"Reached level {lvl['level']}"})
+    return {"badges": badges, "stats": {"tasks_completed": tasks_done, "stories_read": stories_done, "goals_achieved": goals_done, "sip_payments": sip_payments, "loan_payments": loan_payments}, "level_info": level_info, "credit_score": kid_fresh.get("credit_score", 500), "xp": kid_fresh.get("xp", 0)}
+
+
 # ==================== CONFIG ROUTES ====================
 
 @api.get("/config/levels")
