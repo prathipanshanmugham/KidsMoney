@@ -348,8 +348,10 @@ async def login(req: LoginRequest):
     return {"token": token, "user": {"id": user["id"], "email": user["email"], "full_name": user["full_name"], "role": user["role"]}}
 
 @api.get("/auth/me")
-async def get_me(user=Depends(verify_parent)):
-    return {"id": user["id"], "email": user["email"], "full_name": user["full_name"], "role": user["role"]}
+async def get_me(current=Depends(get_current_user)):
+    if current.get("role") == "kid":
+        return {"id": current["id"], "name": current["name"], "role": "kid", "avatar": current.get("avatar"), "ui_theme": current.get("ui_theme", "neutral"), "level": current.get("level"), "xp": current.get("xp", 0), "credit_score": current.get("credit_score", 500), "age": current.get("age")}
+    return {"id": current["id"], "email": current["email"], "full_name": current["full_name"], "role": "parent"}
 
 # ==================== KIDS ROUTES ====================
 
