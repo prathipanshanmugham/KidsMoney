@@ -348,13 +348,13 @@ async def login(req: LoginRequest):
     return {"token": token, "user": {"id": user["id"], "email": user["email"], "full_name": user["full_name"], "role": user["role"]}}
 
 @api.get("/auth/me")
-async def get_me(user=Depends(get_current_user)):
+async def get_me(user=Depends(verify_parent)):
     return {"id": user["id"], "email": user["email"], "full_name": user["full_name"], "role": user["role"]}
 
 # ==================== KIDS ROUTES ====================
 
 @api.post("/kids")
-async def add_kid(req: KidCreate, user=Depends(get_current_user)):
+async def add_kid(req: KidCreate, user=Depends(verify_parent)):
     kid_id = str(uuid.uuid4())
     kid = {
         "id": kid_id,
@@ -384,19 +384,19 @@ async def add_kid(req: KidCreate, user=Depends(get_current_user)):
     return kid_data
 
 @api.get("/kids")
-async def list_kids(user=Depends(get_current_user)):
+async def list_kids(user=Depends(verify_parent)):
     kids = await db.kids.find({"parent_id": user["id"]}, {"_id": 0}).to_list(100)
     return kids
 
 @api.get("/kids/{kid_id}")
-async def get_kid(kid_id: str, user=Depends(get_current_user)):
+async def get_kid(kid_id: str, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
     return kid
 
 @api.put("/kids/{kid_id}")
-async def update_kid(kid_id: str, req: KidUpdate, user=Depends(get_current_user)):
+async def update_kid(kid_id: str, req: KidUpdate, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -406,7 +406,7 @@ async def update_kid(kid_id: str, req: KidUpdate, user=Depends(get_current_user)
     return await db.kids.find_one({"id": kid_id}, {"_id": 0})
 
 @api.delete("/kids/{kid_id}")
-async def delete_kid(kid_id: str, user=Depends(get_current_user)):
+async def delete_kid(kid_id: str, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -423,7 +423,7 @@ async def delete_kid(kid_id: str, user=Depends(get_current_user)):
 # ==================== TASKS ROUTES ====================
 
 @api.post("/tasks")
-async def create_task(req: TaskCreate, user=Depends(get_current_user)):
+async def create_task(req: TaskCreate, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": req.kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -444,7 +444,7 @@ async def create_task(req: TaskCreate, user=Depends(get_current_user)):
     return await db.tasks.find_one({"id": task["id"]}, {"_id": 0})
 
 @api.get("/tasks/{kid_id}")
-async def list_tasks(kid_id: str, status: Optional[str] = None, user=Depends(get_current_user)):
+async def list_tasks(kid_id: str, status: Optional[str] = None, user=Depends(verify_parent)):
     query = {"kid_id": kid_id, "parent_id": user["id"]}
     if status:
         query["status"] = status
@@ -452,7 +452,7 @@ async def list_tasks(kid_id: str, status: Optional[str] = None, user=Depends(get
     return tasks
 
 @api.put("/tasks/{task_id}/complete")
-async def complete_task(task_id: str, user=Depends(get_current_user)):
+async def complete_task(task_id: str, user=Depends(verify_parent)):
     task = await db.tasks.find_one({"id": task_id, "parent_id": user["id"]}, {"_id": 0})
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -469,7 +469,7 @@ async def complete_task(task_id: str, user=Depends(get_current_user)):
     return await db.tasks.find_one({"id": task_id}, {"_id": 0})
 
 @api.put("/tasks/{task_id}/approve")
-async def approve_task(task_id: str, user=Depends(get_current_user)):
+async def approve_task(task_id: str, user=Depends(verify_parent)):
     task = await db.tasks.find_one({"id": task_id, "parent_id": user["id"]}, {"_id": 0})
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -483,7 +483,7 @@ async def approve_task(task_id: str, user=Depends(get_current_user)):
     return await db.tasks.find_one({"id": task_id}, {"_id": 0})
 
 @api.put("/tasks/{task_id}/reject")
-async def reject_task(task_id: str, user=Depends(get_current_user)):
+async def reject_task(task_id: str, user=Depends(verify_parent)):
     task = await db.tasks.find_one({"id": task_id, "parent_id": user["id"]}, {"_id": 0})
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -501,7 +501,7 @@ async def reject_task(task_id: str, user=Depends(get_current_user)):
 # ==================== WALLET ROUTES ====================
 
 @api.get("/wallet/{kid_id}")
-async def get_wallet(kid_id: str, user=Depends(get_current_user)):
+async def get_wallet(kid_id: str, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -511,7 +511,7 @@ async def get_wallet(kid_id: str, user=Depends(get_current_user)):
     return wallet
 
 @api.get("/wallet/{kid_id}/transactions")
-async def get_transactions(kid_id: str, limit: int = Query(50, le=200), user=Depends(get_current_user)):
+async def get_transactions(kid_id: str, limit: int = Query(50, le=200), user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -521,7 +521,7 @@ async def get_transactions(kid_id: str, limit: int = Query(50, le=200), user=Dep
 # ==================== GOALS ROUTES ====================
 
 @api.post("/goals")
-async def create_goal(req: GoalCreate, user=Depends(get_current_user)):
+async def create_goal(req: GoalCreate, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": req.kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -540,12 +540,12 @@ async def create_goal(req: GoalCreate, user=Depends(get_current_user)):
     return await db.goals.find_one({"id": goal["id"]}, {"_id": 0})
 
 @api.get("/goals/{kid_id}")
-async def list_goals(kid_id: str, user=Depends(get_current_user)):
+async def list_goals(kid_id: str, user=Depends(verify_parent)):
     goals = await db.goals.find({"kid_id": kid_id, "parent_id": user["id"]}, {"_id": 0}).to_list(100)
     return goals
 
 @api.put("/goals/{goal_id}/contribute")
-async def contribute_to_goal(goal_id: str, req: GoalContribute, user=Depends(get_current_user)):
+async def contribute_to_goal(goal_id: str, req: GoalContribute, user=Depends(verify_parent)):
     goal = await db.goals.find_one({"id": goal_id, "parent_id": user["id"]}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -561,7 +561,7 @@ async def contribute_to_goal(goal_id: str, req: GoalContribute, user=Depends(get
     return await db.goals.find_one({"id": goal_id}, {"_id": 0})
 
 @api.delete("/goals/{goal_id}")
-async def delete_goal(goal_id: str, user=Depends(get_current_user)):
+async def delete_goal(goal_id: str, user=Depends(verify_parent)):
     goal = await db.goals.find_one({"id": goal_id, "parent_id": user["id"]}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -574,7 +574,7 @@ async def delete_goal(goal_id: str, user=Depends(get_current_user)):
 # ==================== SIP ROUTES ====================
 
 @api.post("/sip")
-async def create_sip(req: SIPCreate, user=Depends(get_current_user)):
+async def create_sip(req: SIPCreate, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": req.kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -595,12 +595,12 @@ async def create_sip(req: SIPCreate, user=Depends(get_current_user)):
     return await db.sips.find_one({"id": sip["id"]}, {"_id": 0})
 
 @api.get("/sip/{kid_id}")
-async def list_sips(kid_id: str, user=Depends(get_current_user)):
+async def list_sips(kid_id: str, user=Depends(verify_parent)):
     sips = await db.sips.find({"kid_id": kid_id, "parent_id": user["id"]}, {"_id": 0}).to_list(100)
     return sips
 
 @api.post("/sip/{sip_id}/pay")
-async def pay_sip(sip_id: str, user=Depends(get_current_user)):
+async def pay_sip(sip_id: str, user=Depends(verify_parent)):
     sip = await db.sips.find_one({"id": sip_id, "parent_id": user["id"]}, {"_id": 0})
     if not sip:
         raise HTTPException(status_code=404, detail="SIP not found")
@@ -621,7 +621,7 @@ async def pay_sip(sip_id: str, user=Depends(get_current_user)):
     return await db.sips.find_one({"id": sip_id}, {"_id": 0})
 
 @api.put("/sip/{sip_id}/pause")
-async def pause_sip(sip_id: str, user=Depends(get_current_user)):
+async def pause_sip(sip_id: str, user=Depends(verify_parent)):
     sip = await db.sips.find_one({"id": sip_id, "parent_id": user["id"]}, {"_id": 0})
     if not sip:
         raise HTTPException(status_code=404, detail="SIP not found")
@@ -632,7 +632,7 @@ async def pause_sip(sip_id: str, user=Depends(get_current_user)):
 # ==================== LOANS ROUTES ====================
 
 @api.post("/loans/request")
-async def request_loan(req: LoanRequest, user=Depends(get_current_user)):
+async def request_loan(req: LoanRequest, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": req.kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
@@ -661,12 +661,12 @@ async def request_loan(req: LoanRequest, user=Depends(get_current_user)):
     return await db.loans.find_one({"id": loan["id"]}, {"_id": 0})
 
 @api.get("/loans/{kid_id}")
-async def list_loans(kid_id: str, user=Depends(get_current_user)):
+async def list_loans(kid_id: str, user=Depends(verify_parent)):
     loans = await db.loans.find({"kid_id": kid_id, "parent_id": user["id"]}, {"_id": 0}).to_list(100)
     return loans
 
 @api.post("/loans/{loan_id}/approve")
-async def approve_loan(loan_id: str, user=Depends(get_current_user)):
+async def approve_loan(loan_id: str, user=Depends(verify_parent)):
     loan = await db.loans.find_one({"id": loan_id, "parent_id": user["id"]}, {"_id": 0})
     if not loan:
         raise HTTPException(status_code=404, detail="Loan not found")
@@ -678,7 +678,7 @@ async def approve_loan(loan_id: str, user=Depends(get_current_user)):
     return await db.loans.find_one({"id": loan_id}, {"_id": 0})
 
 @api.post("/loans/{loan_id}/pay")
-async def pay_loan_emi(loan_id: str, user=Depends(get_current_user)):
+async def pay_loan_emi(loan_id: str, user=Depends(verify_parent)):
     loan = await db.loans.find_one({"id": loan_id, "parent_id": user["id"]}, {"_id": 0})
     if not loan:
         raise HTTPException(status_code=404, detail="Loan not found")
@@ -698,18 +698,18 @@ async def pay_loan_emi(loan_id: str, user=Depends(get_current_user)):
 # ==================== LEARNING ROUTES ====================
 
 @api.get("/learning/stories")
-async def get_stories(user=Depends(get_current_user)):
+async def get_stories(user=Depends(verify_parent)):
     return STORIES
 
 @api.get("/learning/stories/{story_id}")
-async def get_story(story_id: str, user=Depends(get_current_user)):
+async def get_story(story_id: str, user=Depends(verify_parent)):
     for s in STORIES:
         if s["id"] == story_id:
             return s
     raise HTTPException(status_code=404, detail="Story not found")
 
 @api.post("/learning/complete")
-async def complete_lesson(req: LearningComplete, user=Depends(get_current_user)):
+async def complete_lesson(req: LearningComplete, user=Depends(verify_parent)):
     existing = await db.learning_progress.find_one({"kid_id": req.kid_id, "story_id": req.story_id}, {"_id": 0})
     if existing:
         if req.score > existing.get("score", 0):
@@ -729,14 +729,14 @@ async def complete_lesson(req: LearningComplete, user=Depends(get_current_user))
     return {"message": "Lesson completed!", "xp_earned": story["reward_xp"] if story else 0}
 
 @api.get("/learning/progress/{kid_id}")
-async def get_learning_progress(kid_id: str, user=Depends(get_current_user)):
+async def get_learning_progress(kid_id: str, user=Depends(verify_parent)):
     progress = await db.learning_progress.find({"kid_id": kid_id}, {"_id": 0}).to_list(100)
     return progress
 
 # ==================== DASHBOARD ROUTES ====================
 
 @api.get("/dashboard/kid/{kid_id}")
-async def kid_dashboard(kid_id: str, user=Depends(get_current_user)):
+async def kid_dashboard(kid_id: str, user=Depends(verify_parent)):
     kid = await db.kids.find_one({"id": kid_id, "parent_id": user["id"]}, {"_id": 0})
     if not kid:
         raise HTTPException(status_code=404, detail="Kid not found")
