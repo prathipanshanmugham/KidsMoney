@@ -142,12 +142,16 @@ class KidCreate(BaseModel):
     avatar: str = "panda"
     grade: Optional[str] = None
     starting_balance: float = 0
+    ui_theme: str = "neutral"
+    pin: Optional[str] = None
 
 class KidUpdate(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     avatar: Optional[str] = None
     grade: Optional[str] = None
+    ui_theme: Optional[str] = None
+    pin: Optional[str] = None
 
 class TaskCreate(BaseModel):
     kid_id: str
@@ -185,6 +189,15 @@ class LearningComplete(BaseModel):
     story_id: str
     score: int
 
+class KidLoginRequest(BaseModel):
+    parent_email: str
+    kid_name: str
+    pin: str
+
+class KidLearningComplete(BaseModel):
+    story_id: str
+    score: int
+
 # ==================== AUTH UTILS ====================
 
 def hash_password(password: str) -> str:
@@ -193,21 +206,58 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
-def create_token(user_id: str) -> str:
+def create_token(user_id: str, role: str = "parent", kid_id: str = None) -> str:
     payload = {
         "user_id": user_id,
+        "role": role,
         "exp": datetime.now(timezone.utc) + timedelta(days=7),
         "iat": datetime.now(timezone.utc)
     }
+    if kid_id:
+        payload["kid_id"] = kid_id
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALG])
+        role = payload.get("role", "parent")
+        if role == "kid":
+            kid = await db.kids.find_one({"id": payload.get("kid_id")}, {"_id": 0})
+            if not kid:
+                raise HTTPException(status_code=401, detail="Kid not found")
+            return {**kid, "role": "kid", "user_id": payload["user_id"]}
+        user = await db.users.find_one({"id": payload["user_id"]}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return {**user, "role": "parent"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def verify_parent(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALG])
+        if payload.get("role") == "kid":
+            raise HTTPException(status_code=403, detail="Parent access required")
         user = await db.users.find_one({"id": payload["user_id"]}, {"_id": 0})
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def verify_kid(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALG])
+        if payload.get("role") != "kid":
+            raise HTTPException(status_code=403, detail="Kid access required")
+        kid = await db.kids.find_one({"id": payload.get("kid_id")}, {"_id": 0})
+        if not kid:
+            raise HTTPException(status_code=401, detail="Kid not found")
+        return kid
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
