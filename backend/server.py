@@ -365,6 +365,8 @@ async def add_kid(req: KidCreate, user=Depends(verify_parent)):
         "age": req.age,
         "avatar": req.avatar,
         "grade": req.grade,
+        "ui_theme": req.ui_theme,
+        "pin": req.pin,
         "level": 1,
         "xp": 0,
         "credit_score": 500,
