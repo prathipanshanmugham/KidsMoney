@@ -311,6 +311,12 @@ export default function ParentDashboard() {
   );
 }
 
+const THEME_OPTIONS = [
+  { value: 'boy', label: 'Adventure', color: '#0EA5E9', desc: 'Blue & Teal' },
+  { value: 'girl', label: 'Fantasy', color: '#A78BFA', desc: 'Purple & Pink' },
+  { value: 'neutral', label: 'Nature', color: '#34D399', desc: 'Green & Blue' },
+];
+
 function AddKidForm({ form, setForm, onSubmit, loading }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4 mt-4">
@@ -346,6 +352,38 @@ function AddKidForm({ form, setForm, onSubmit, loading }) {
             </button>
           ))}
         </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">UI Theme</Label>
+        <div className="grid grid-cols-3 gap-3">
+          {THEME_OPTIONS.map(th => (
+            <button
+              type="button"
+              key={th.value}
+              onClick={() => setForm({...form, ui_theme: th.value})}
+              className={`rounded-2xl p-3 text-center transition-all border-2 ${form.ui_theme === th.value ? 'border-current scale-105 shadow-md' : 'border-transparent bg-muted/50 hover:bg-muted'}`}
+              style={form.ui_theme === th.value ? { borderColor: th.color, backgroundColor: th.color + '10' } : {}}
+              data-testid={`theme-${th.value}`}
+            >
+              <div className="w-6 h-6 rounded-full mx-auto mb-1.5" style={{ backgroundColor: th.color }} />
+              <p className="text-xs font-semibold">{th.label}</p>
+              <p className="text-[10px] text-muted-foreground">{th.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Kid Login PIN</Label>
+        <Input
+          type="text"
+          maxLength={6}
+          placeholder="Set a 4-6 digit PIN"
+          value={form.pin}
+          onChange={e => setForm({...form, pin: e.target.value.replace(/\D/g, '')})}
+          className="rounded-xl h-12 tracking-[0.3em] text-center"
+          data-testid="kid-pin-input"
+        />
+        <p className="text-[11px] text-muted-foreground">Your child will use this PIN to log into their own dashboard</p>
       </div>
       <div className="space-y-2">
         <Label className="text-sm font-medium">Starting Balance (coins)</Label>
