@@ -1,77 +1,109 @@
-# Kids Money - PRD
+# Kids Money - PRD (Product Requirements Document)
 
-## Problem Statement
-Build a production-grade fintech-education ecosystem called "Kids Money" - a gamified allowance + financial literacy platform where kids earn virtual money via tasks, save toward goals, learn SIP/loans/EMI, and parents control everything. No real money involved.
+## Original Problem Statement
+Build a production-grade fintech-education SaaS application named "Kids Money" - a gamified allowance and financial literacy platform for kids, managed by parents, with no real money involved. Kids earn virtual money through tasks, save towards goals, and learn about financial concepts.
 
-## Architecture
-- **Frontend**: React 19 + Tailwind CSS + Shadcn/UI + Recharts
-- **Backend**: FastAPI (Python) + MongoDB (Motor async driver)
-- **Auth**: JWT (email/password)
-- **Design**: Apple-like minimalist, Outfit + Plus Jakarta Sans fonts, dark mode
+## Tech Stack
+- **Frontend:** React, React Router, Tailwind CSS, Shadcn/UI, Recharts
+- **Backend:** FastAPI, Motor (async MongoDB driver), JWT Auth, Pydantic
+- **Database:** MongoDB (deviation from original PostgreSQL spec)
+- **Architecture:** Monolithic Full-Stack Application
 
-## User Personas
-1. **Parent (Admin)**: Full control over kids, tasks, approvals, loan/SIP settings
-2. **Kid (Sub Account)**: Gamified dashboard, tasks, wallet, goals, learning
+## Core User Roles
+- **Parent (Admin):** Manages kid profiles, creates tasks, sets goals, monitors progress
+- **Kid (Sub-Account):** Completes tasks, earns coins, saves for goals, learns about finance
 
-## Core Requirements
-- Parent signup/login (JWT auth)
-- Add/manage multiple kids (unlimited)
-- Task & reward engine (create, complete, approve/reject)
-- Wallet & ledger (double-entry, credit/debit tracking)
-- 10-level gamified progression (XP-based)
-- Wishlist & savings goals
-- SIP engine (compound interest calculations)
-- Loan & EMI system (with credit score impact)
-- Credit score (0-1000, gamified)
-- Learning module (5 stories with quizzes)
-- Dark mode toggle
-- Mobile-first responsive UI
+## DB Collections
+- `users`: `{ id, email, full_name, password_hash, role: 'parent', created_at }`
+- `kids`: `{ id, parent_id, name, age, avatar, grade, ui_theme, pin, level, xp, credit_score, created_at }`
+- `wallets`: `{ id, kid_id, balance, total_earned, total_spent, total_saved }`
+- `transactions`: `{ id, kid_id, type, amount, description, category, reference_id, created_at }`
+- `tasks`: `{ id, parent_id, kid_id, title, description, reward_amount, penalty_amount, frequency, approval_required, status, created_at }`
+- `goals`: `{ id, kid_id, parent_id, title, target_amount, saved_amount, deadline, status, created_at }`
+- `sips`: `{ id, kid_id, parent_id, amount, interest_rate, frequency, total_invested, current_value, payments_made, status, created_at }`
+- `loans`: `{ id, kid_id, parent_id, principal, interest_rate, duration_months, emi_amount, remaining_balance, payments_made, purpose, status, created_at }`
+- `learning_progress`: `{ id, kid_id, story_id, score, completed_at }`
 
-## What's Been Implemented (Feb 14, 2026)
-- [x] Full backend API (21+ endpoints) - all tested and passing
-- [x] Auth system (signup, login, JWT)
-- [x] Kid management (add, edit, delete, list)
-- [x] Task engine (create, complete, approve, reject with wallet impact)
-- [x] Wallet & ledger system (balance, earned, spent, saved, full transaction history)
-- [x] Goals system (create, contribute, delete with refund)
-- [x] SIP engine (create, pay, pause, compound interest calculations, growth chart)
-- [x] Loan & EMI system (request, approve, pay EMI, credit score impact)
-- [x] Credit score system (0-1000, updated by task/EMI/saving activities)
-- [x] 10-level progression (XP earned from all activities)
-- [x] Learning module (5 stories with 3 quiz questions each, XP rewards)
-- [x] Parent dashboard (overview, pending approvals, quick actions, recent activity)
-- [x] Kid dashboard (gamified view with level progress, balance, tasks, goals)
-- [x] Settings page (profile, dark mode toggle, kid management)
-- [x] Landing page (hero, features, CTA)
-- [x] Dark mode toggle (persisted in localStorage)
-- [x] Mobile-responsive layout (sidebar + bottom nav)
-- [x] All accessibility dialog descriptions added
+## What's Been Implemented
 
-## Prioritized Backlog
-### P0 (Next Phase)
-- [ ] SMS OTP authentication (Twilio integration)
-- [ ] Task frequency auto-reset (daily/weekly tasks)
-- [ ] SIP auto-deduction cron job
-- [ ] EMI due date tracking with reminders
+### Phase 1 - MVP (Complete)
+- Parent authentication (signup/login)
+- Kid profile management (add/edit/delete)
+- Task & Reward System (create, complete, approve/reject)
+- Wallet & Ledger System (balance, transactions)
+- 10-Level Progression System with XP
+- Gamified Credit Score (0-1000)
+- Goals (create, contribute savings)
+- SIP Engine (create, pay, compound interest calculation)
+- Loan & EMI System (request, approve, pay EMIs)
+- Learning Module (5 story-based lessons with quizzes)
+- Parent Dashboard with kid overview
+- Dark/Light mode support
 
-### P1
-- [ ] Advanced reporting/analytics for parents
-- [ ] More learning stories (expand to 20+)
-- [ ] Achievement badges unlock system
-- [ ] Avatar accessories unlocked by levels
-- [ ] Password reset functionality
+### Phase 2 - Role-Based UI Separation (Complete - Feb 2026)
+- **Backend RBAC:** `verify_parent` and `verify_kid` middleware, separate API endpoints for each role
+- **Kid Login:** POST /api/auth/kid-login (parent email + kid name + PIN)
+- **Frontend Route Protection:** `ParentRoute` redirects kids to /kid/dashboard, `KidRoute` redirects parents to /dashboard
+- **Kid Interface:** Complete set of kid-specific pages (KidHome, KidTasks, KidWallet, KidGoals, KidSIP, KidLoans, KidLearning, KidAchievements)
+- **KidLayout:** Themed sidebar and navigation with boy/girl/neutral color themes
+- **Login UI:** Tabbed Parent/Kid login forms
+- **AddKidForm:** Includes ui_theme selector and PIN field
 
-### P2
-- [ ] AI-powered financial insights
-- [ ] Multi-language support
-- [ ] School integrations
-- [ ] Freemium/premium tier system
-- [ ] Push notifications
-- [ ] Export reports (PDF/CSV)
+## API Endpoints
 
-## Next Tasks
-1. Add SMS OTP with Twilio
-2. Implement task frequency auto-reset
-3. Add more learning content
-4. Build achievement badge system
-5. Add password reset flow
+### Auth
+- `POST /api/auth/signup` - Parent registration
+- `POST /api/auth/login` - Parent login
+- `POST /api/auth/kid-login` - Kid login (parent_email, kid_name, pin)
+- `GET /api/auth/me` - Current user info (works for both roles)
+
+### Parent Routes (protected by verify_parent)
+- `POST /api/kids` - Add kid
+- `GET /api/kids` - List kids
+- `GET/PUT/DELETE /api/kids/{kid_id}` - Kid CRUD
+- `POST /api/tasks` - Create task
+- `GET /api/tasks/{kid_id}` - List tasks
+- `PUT /api/tasks/{task_id}/complete|approve|reject` - Task actions
+- `GET /api/wallet/{kid_id}` - Get wallet
+- `GET /api/wallet/{kid_id}/transactions` - Get transactions
+- `POST /api/goals` - Create goal
+- `GET /api/goals/{kid_id}` - List goals
+- `PUT /api/goals/{goal_id}/contribute` - Contribute to goal
+- `POST /api/sip` - Create SIP
+- `GET /api/sip/{kid_id}` - List SIPs
+- `POST /api/sip/{sip_id}/pay|pause` - SIP actions
+- `POST /api/loans/request` - Request loan
+- `GET /api/loans/{kid_id}` - List loans
+- `POST /api/loans/{loan_id}/approve|pay` - Loan actions
+- `GET /api/learning/stories` - Get stories
+- `POST /api/learning/complete` - Complete lesson
+
+### Kid Routes (protected by verify_kid)
+- `GET /api/kid/me` - Kid profile with wallet/level info
+- `GET /api/kid/dashboard` - Kid dashboard data
+- `GET /api/kid/tasks` - Kid's tasks
+- `PUT /api/kid/tasks/{task_id}/complete` - Complete task
+- `GET /api/kid/wallet` - Kid's wallet
+- `GET /api/kid/transactions` - Kid's transactions
+- `GET /api/kid/goals` - Kid's goals
+- `PUT /api/kid/goals/{goal_id}/contribute` - Contribute to goal
+- `GET /api/kid/sip` - Kid's SIPs
+- `POST /api/kid/sip/{sip_id}/pay` - Pay SIP
+- `GET /api/kid/loans` - Kid's loans
+- `POST /api/kid/loans/{loan_id}/pay` - Pay EMI
+- `GET /api/kid/learning/stories` - Stories
+- `GET /api/kid/learning/progress` - Learning progress
+- `POST /api/kid/learning/complete` - Complete lesson
+- `GET /api/kid/achievements` - Badges and stats
+
+## Upcoming Tasks (Priority Order)
+1. **P1:** Wishlist & Goals Module enhancement
+2. **P1:** SIP Engine UI improvements
+3. **P1:** Learning Module expansion (more stories)
+4. **P2:** Backend refactoring (modularize server.py)
+5. **P2:** AI-powered financial insights
+6. **P2:** Multi-language support
+
+## Known Deviations
+- Database is MongoDB instead of originally requested PostgreSQL
+- Backend is monolithic (single server.py) instead of modular
