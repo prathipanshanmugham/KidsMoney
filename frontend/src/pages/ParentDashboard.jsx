@@ -30,7 +30,7 @@ export default function ParentDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [addKidOpen, setAddKidOpen] = useState(false);
-  const [kidForm, setKidForm] = useState({ name: '', age: '', avatar: 'panda', grade: '', starting_balance: 0 });
+  const [kidForm, setKidForm] = useState({ name: '', age: '', avatar: 'panda', grade: '', starting_balance: 0, ui_theme: 'neutral', pin: '' });
   const [adding, setAdding] = useState(false);
   const navigate = useNavigate();
 
@@ -58,11 +58,11 @@ export default function ParentDashboard() {
     }
     setAdding(true);
     try {
-      await API.post('/kids', { ...kidForm, age: parseInt(kidForm.age), starting_balance: parseFloat(kidForm.starting_balance) || 0 });
+      await API.post('/kids', { ...kidForm, age: parseInt(kidForm.age), starting_balance: parseFloat(kidForm.starting_balance) || 0, pin: kidForm.pin || null });
       toast.success(`${kidForm.name} added successfully!`);
       await loadKids();
       setAddKidOpen(false);
-      setKidForm({ name: '', age: '', avatar: 'panda', grade: '', starting_balance: 0 });
+      setKidForm({ name: '', age: '', avatar: 'panda', grade: '', starting_balance: 0, ui_theme: 'neutral', pin: '' });
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to add kid');
     } finally {
