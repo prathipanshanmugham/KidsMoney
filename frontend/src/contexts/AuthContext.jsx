@@ -39,7 +39,9 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await API.get('/auth/me');
       setUser(data);
-      await loadKids();
+      if (data.role === 'parent') {
+        await loadKids();
+      }
     } catch (e) {
       localStorage.removeItem('km_token');
     } finally {
@@ -50,15 +52,22 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const { data } = await API.post('/auth/login', { email, password });
     localStorage.setItem('km_token', data.token);
-    setUser(data.user);
+    setUser({ ...data.user, role: 'parent' });
     await loadKids();
+    return data;
+  };
+
+  const kidLogin = async (parent_email, kid_name, pin) => {
+    const { data } = await API.post('/auth/kid-login', { parent_email, kid_name, pin });
+    localStorage.setItem('km_token', data.token);
+    setUser({ ...data.kid, role: 'kid' });
     return data;
   };
 
   const signup = async (full_name, email, password) => {
     const { data } = await API.post('/auth/signup', { full_name, email, password });
     localStorage.setItem('km_token', data.token);
-    setUser(data.user);
+    setUser({ ...data.user, role: 'parent' });
     return data;
   };
 
@@ -70,7 +79,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, kids, selectedKid, loading, setSelectedKid, login, signup, logout, loadKids }}>
+    <AuthContext.Provider value={{ user, kids, selectedKid, loading, setSelectedKid, login, kidLogin, signup, logout, loadKids }}>
       {children}
     </AuthContext.Provider>
   );
