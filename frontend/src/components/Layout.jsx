@@ -13,7 +13,6 @@ import {
 
 const NAV_ITEMS = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/kid-view', icon: Sparkles, label: 'Kid View' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/wallet', icon: WalletCards, label: 'Wallet' },
   { path: '/goals', icon: Target, label: 'Goals' },
