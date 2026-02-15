@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   LayoutDashboard, CheckSquare, WalletCards, Target,
   TrendingUp, Banknote, BookOpen, Settings, LogOut,
-  Sun, Moon, Menu, Sparkles, Users, ChevronRight
+  Sun, Moon, Menu, Users, ChevronRight
 } from 'lucide-react';
 
 const NAV_ITEMS = [
