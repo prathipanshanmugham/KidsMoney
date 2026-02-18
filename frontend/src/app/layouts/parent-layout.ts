@@ -108,8 +108,8 @@ import { getAvatarColor } from '../constants/app-data';
               </div>
               <h1 class="text-lg font-bold font-heading">Kids Money</h1>
             </div>
-            <nav class="space-y-1">
-              @for (item of [...navItems, settingsNav]; track item.path) {
+            <nav class="space-y-1 mt-4">
+              @for (item of allNavItems; track item.path) {
                 <a [routerLink]="item.path" (click)="mobileMenu = false"
                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all nav-item">
                   <span [innerHTML]="item.icon"></span>
