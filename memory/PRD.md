@@ -3,107 +3,95 @@
 ## Original Problem Statement
 Build a production-grade fintech-education SaaS application named "Kids Money" - a gamified allowance and financial literacy platform for kids, managed by parents, with no real money involved. Kids earn virtual money through tasks, save towards goals, and learn about financial concepts.
 
-## Tech Stack
-- **Frontend:** React, React Router, Tailwind CSS, Shadcn/UI, Recharts
-- **Backend:** FastAPI, Motor (async MongoDB driver), JWT Auth, Pydantic
-- **Database:** MongoDB (deviation from original PostgreSQL spec)
-- **Architecture:** Monolithic Full-Stack Application
+## Architecture (Post-Migration - Feb 2026)
+- **Frontend:** Angular 20 (standalone components, Tailwind CSS 4)
+- **Backend:** NONE (Serverless)
+- **Auth:** Firebase Authentication (Email/Password for parents, anonymous + PIN for kids)
+- **Database:** Firebase Firestore
+- **Hosting:** Angular dev server on port 3000 (Emergent preview)
+
+## Firebase Project
+- **Project ID:** child-fund-a531b
+- **Auth Domain:** child-fund-a531b.firebaseapp.com
+
+### Firebase Setup Requirements (User Action Needed)
+1. Go to Firebase Console -> Authentication -> Sign-in Method -> Enable Email/Password
+2. Go to Firebase Console -> Firestore Database -> Create Database (test mode for dev)
+3. Deploy Firestore security rules for production
 
 ## Core User Roles
 - **Parent (Admin):** Manages kid profiles, creates tasks, sets goals, monitors progress
 - **Kid (Sub-Account):** Completes tasks, earns coins, saves for goals, learns about finance
 
-## DB Collections
-- `users`: `{ id, email, full_name, password_hash, role: 'parent', created_at }`
-- `kids`: `{ id, parent_id, name, age, avatar, grade, ui_theme, pin, level, xp, credit_score, created_at }`
-- `wallets`: `{ id, kid_id, balance, total_earned, total_spent, total_saved }`
-- `transactions`: `{ id, kid_id, type, amount, description, category, reference_id, created_at }`
-- `tasks`: `{ id, parent_id, kid_id, title, description, reward_amount, penalty_amount, frequency, approval_required, status, created_at }`
-- `goals`: `{ id, kid_id, parent_id, title, target_amount, saved_amount, deadline, status, created_at }`
-- `sips`: `{ id, kid_id, parent_id, amount, interest_rate, frequency, total_invested, current_value, payments_made, status, created_at }`
-- `loans`: `{ id, kid_id, parent_id, principal, interest_rate, duration_months, emi_amount, remaining_balance, payments_made, purpose, status, created_at }`
-- `learning_progress`: `{ id, kid_id, story_id, score, completed_at }`
+## Firestore Collections
+- `users/{uid}` - Parent profile (using Firebase Auth UID as doc ID)
+- `kids/{kidId}` - Kid profiles (with parent_uid, name, age, avatar, ui_theme, pin, level, xp, credit_score)
+- `wallets/{kidId}` - Wallet data (balance, total_earned, total_spent, total_saved)
+- `transactions/{txnId}` - Transaction history (kid_id, type, amount, description, category)
+- `tasks/{taskId}` - Tasks (parent_uid, kid_id, title, reward_amount, status)
+- `goals/{goalId}` - Savings goals (kid_id, title, target_amount, saved_amount, status)
+- `sips/{sipId}` - SIP investments (kid_id, amount, interest_rate, total_invested, current_value)
+- `loans/{loanId}` - Loans (kid_id, principal, emi_amount, remaining_balance, status)
+- `learning_progress/{progressId}` - Completed lessons (kid_id, story_id, score)
 
 ## What's Been Implemented
 
-### Phase 1 - MVP (Complete)
-- Parent authentication (signup/login)
-- Kid profile management (add/edit/delete)
-- Task & Reward System (create, complete, approve/reject)
-- Wallet & Ledger System (balance, transactions)
-- 10-Level Progression System with XP
-- Gamified Credit Score (0-1000)
-- Goals (create, contribute savings)
-- SIP Engine (create, pay, compound interest calculation)
-- Loan & EMI System (request, approve, pay EMIs)
-- Learning Module (5 story-based lessons with quizzes)
-- Parent Dashboard with kid overview
-- Dark/Light mode support
+### Phase 1 - React MVP (Complete, now deprecated)
+- Original React + FastAPI + MongoDB implementation
+- All features implemented but replaced by Angular migration
 
-### Phase 2 - Role-Based UI Separation (Complete - Feb 2026)
-- **Backend RBAC:** `verify_parent` and `verify_kid` middleware, separate API endpoints for each role
-- **Kid Login:** POST /api/auth/kid-login (parent email + kid name + PIN)
-- **Frontend Route Protection:** `ParentRoute` redirects kids to /kid/dashboard, `KidRoute` redirects parents to /dashboard
-- **Kid Interface:** Complete set of kid-specific pages (KidHome, KidTasks, KidWallet, KidGoals, KidSIP, KidLoans, KidLearning, KidAchievements)
-- **KidLayout:** Themed sidebar and navigation with boy/girl/neutral color themes
-- **Login UI:** Tabbed Parent/Kid login forms
-- **AddKidForm:** Includes ui_theme selector and PIN field
+### Phase 2 - Angular 20 + Firebase Migration (Complete - Feb 2026)
+- **Full frontend rewrite** from React to Angular 20 with standalone components
+- **Serverless architecture** - removed FastAPI backend entirely
+- **Firebase Auth** integration for parent email/password authentication
+- **Firebase Firestore** integration for all data persistence
+- **Kid login** via parent email + kid name + PIN (with Firestore verification)
+- **Role-based routing** with async guards (parentGuard, kidGuard, publicGuard)
+- **Parent Interface:** Dashboard, Tasks, Wallet, Goals, SIP, Loans, Learning, Settings (8 pages)
+- **Kid Interface:** Home, Tasks, Wallet, Goals, SIP, Loans, Learning, Achievements (8 pages)
+- **UI Themes:** Boy (blue), Girl (purple), Neutral (green) for kid interface
+- **Dark/Light mode** toggle with localStorage persistence
+- **SVG icons** properly sanitized with DomSanitizer
+- **Graceful error handling** for Firestore unavailability with timeouts
+- **Tailwind CSS 4** with custom CSS variables for theming
 
-## API Endpoints
+## File Structure
+```
+/app/frontend/
+├── angular.json
+├── package.json
+├── .postcssrc.json
+├── tsconfig.json
+└── src/
+    ├── index.html
+    ├── main.ts
+    ├── styles.css (Tailwind + CSS variables)
+    └── app/
+        ├── app.ts (root component)
+        ├── app.config.ts (Firebase providers)
+        ├── app.routes.ts (all routes with lazy loading)
+        ├── environments/environment.ts (Firebase config)
+        ├── constants/app-data.ts (levels, stories, themes)
+        ├── models/interfaces.ts (TypeScript interfaces)
+        ├── services/
+        │   ├── auth.service.ts (Firebase Auth + session management)
+        │   ├── firestore.service.ts (all Firestore CRUD)
+        │   └── theme.service.ts (dark/light mode)
+        ├── guards/auth.guard.ts (route protection)
+        ├── layouts/
+        │   ├── parent-layout.ts (sidebar + header)
+        │   └── kid-layout.ts (themed sidebar)
+        └── pages/ (16 page components)
+```
 
-### Auth
-- `POST /api/auth/signup` - Parent registration
-- `POST /api/auth/login` - Parent login
-- `POST /api/auth/kid-login` - Kid login (parent_email, kid_name, pin)
-- `GET /api/auth/me` - Current user info (works for both roles)
+## Testing Status
+- **iteration_3.json:** 22/22 frontend tests passed (100%)
+- All pages render, routing works, auth flow works, dark mode works
 
-### Parent Routes (protected by verify_parent)
-- `POST /api/kids` - Add kid
-- `GET /api/kids` - List kids
-- `GET/PUT/DELETE /api/kids/{kid_id}` - Kid CRUD
-- `POST /api/tasks` - Create task
-- `GET /api/tasks/{kid_id}` - List tasks
-- `PUT /api/tasks/{task_id}/complete|approve|reject` - Task actions
-- `GET /api/wallet/{kid_id}` - Get wallet
-- `GET /api/wallet/{kid_id}/transactions` - Get transactions
-- `POST /api/goals` - Create goal
-- `GET /api/goals/{kid_id}` - List goals
-- `PUT /api/goals/{goal_id}/contribute` - Contribute to goal
-- `POST /api/sip` - Create SIP
-- `GET /api/sip/{kid_id}` - List SIPs
-- `POST /api/sip/{sip_id}/pay|pause` - SIP actions
-- `POST /api/loans/request` - Request loan
-- `GET /api/loans/{kid_id}` - List loans
-- `POST /api/loans/{loan_id}/approve|pay` - Loan actions
-- `GET /api/learning/stories` - Get stories
-- `POST /api/learning/complete` - Complete lesson
-
-### Kid Routes (protected by verify_kid)
-- `GET /api/kid/me` - Kid profile with wallet/level info
-- `GET /api/kid/dashboard` - Kid dashboard data
-- `GET /api/kid/tasks` - Kid's tasks
-- `PUT /api/kid/tasks/{task_id}/complete` - Complete task
-- `GET /api/kid/wallet` - Kid's wallet
-- `GET /api/kid/transactions` - Kid's transactions
-- `GET /api/kid/goals` - Kid's goals
-- `PUT /api/kid/goals/{goal_id}/contribute` - Contribute to goal
-- `GET /api/kid/sip` - Kid's SIPs
-- `POST /api/kid/sip/{sip_id}/pay` - Pay SIP
-- `GET /api/kid/loans` - Kid's loans
-- `POST /api/kid/loans/{loan_id}/pay` - Pay EMI
-- `GET /api/kid/learning/stories` - Stories
-- `GET /api/kid/learning/progress` - Learning progress
-- `POST /api/kid/learning/complete` - Complete lesson
-- `GET /api/kid/achievements` - Badges and stats
-
-## Upcoming Tasks (Priority Order)
-1. **P1:** Wishlist & Goals Module enhancement
-2. **P1:** SIP Engine UI improvements
-3. **P1:** Learning Module expansion (more stories)
-4. **P2:** Backend refactoring (modularize server.py)
-5. **P2:** AI-powered financial insights
-6. **P2:** Multi-language support
-
-## Known Deviations
-- Database is MongoDB instead of originally requested PostgreSQL
-- Backend is monolithic (single server.py) instead of modular
+## Upcoming Tasks
+1. **P0:** User needs to configure Firebase (enable Auth + create Firestore DB)
+2. **P1:** Add Firestore security rules for production
+3. **P1:** Implement real-time listeners for live data updates
+4. **P2:** Add Firebase Cloud Functions for kid PIN hashing
+5. **P2:** Multi-language support
+6. **P2:** PWA support for mobile
