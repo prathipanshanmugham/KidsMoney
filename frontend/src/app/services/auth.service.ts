@@ -76,7 +76,13 @@ export class AuthService {
       role: 'parent',
       created_at: new Date().toISOString()
     };
-    await setDoc(doc(this.firestore, 'users', cred.user.uid), profile);
+    try {
+      const writePromise = setDoc(doc(this.firestore, 'users', cred.user.uid), profile);
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), 8000));
+      await Promise.race([writePromise, timeout]);
+    } catch (e) {
+      console.warn('Firestore write failed, continuing with auth only:', e);
+    }
     this.parentProfile.set(profile);
     this.role.set('parent');
   }
