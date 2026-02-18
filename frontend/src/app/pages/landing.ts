@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-landing',
@@ -44,7 +45,7 @@ import { RouterLink } from '@angular/router';
             <div class="card p-6 text-center">
               <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                    [style.background-color]="feature.color + '15'" [style.color]="feature.color">
-                <span [innerHTML]="feature.icon"></span>
+                <span [innerHTML]="feature.safeIcon"></span>
               </div>
               <h3 class="font-semibold text-sm mb-1 font-heading">{{ feature.title }}</h3>
               <p class="text-xs" style="color: var(--fg-muted)">{{ feature.desc }}</p>
@@ -56,10 +57,17 @@ import { RouterLink } from '@angular/router';
   `
 })
 export class LandingPage {
-  features = [
-    { title: 'Tasks & Rewards', desc: 'Earn coins by completing chores', color: '#4F7DF3', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4" stroke-width="2"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-width="2"/></svg>' },
-    { title: 'Smart Saving', desc: 'Set goals and watch savings grow', color: '#34D399', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke-width="2"/><circle cx="12" cy="12" r="2" stroke-width="2"/></svg>' },
-    { title: 'SIP Investing', desc: 'Learn compound interest', color: '#A78BFA', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" stroke-width="2"/></svg>' },
-    { title: 'Fun Stories', desc: 'Story-based money lessons', color: '#FB923C', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke-width="2"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke-width="2"/></svg>' },
-  ];
+  private sanitizer = inject(DomSanitizer);
+
+  features: { title: string; desc: string; color: string; safeIcon: SafeHtml }[];
+
+  constructor() {
+    const raw = [
+      { title: 'Tasks & Rewards', desc: 'Earn coins by completing chores', color: '#4F7DF3', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4" stroke-width="2"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-width="2"/></svg>' },
+      { title: 'Smart Saving', desc: 'Set goals and watch savings grow', color: '#34D399', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke-width="2"/><circle cx="12" cy="12" r="2" stroke-width="2"/></svg>' },
+      { title: 'SIP Investing', desc: 'Learn compound interest', color: '#A78BFA', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" stroke-width="2"/></svg>' },
+      { title: 'Fun Stories', desc: 'Story-based money lessons', color: '#FB923C', icon: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke-width="2"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke-width="2"/></svg>' },
+    ];
+    this.features = raw.map(f => ({ ...f, safeIcon: this.sanitizer.bypassSecurityTrustHtml(f.icon) }));
+  }
 }
