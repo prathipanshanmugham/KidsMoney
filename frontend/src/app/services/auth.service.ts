@@ -59,15 +59,22 @@ export class AuthService {
   async loadKids() {
     const user = this.firebaseUser();
     if (!user) return;
-    const q = query(collection(this.firestore, 'kids'), where('parent_uid', '==', user.uid));
-    const snap = await getDocs(q);
-    const kidsList = snap.docs.map(d => d.data() as Kid);
-    this.kids.set(kidsList);
-    if (kidsList.length > 0) {
-      const current = this.selectedKid();
-      const existing = current ? kidsList.find(k => k.id === current.id) : null;
-      this.selectedKid.set(existing || kidsList[0]);
-    } else {
+    try {
+      const q = query(collection(this.firestore, 'kids'), where('parent_uid', '==', user.uid));
+      const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+      const snap = await Promise.race([getDocs(q), timeout]);
+      const kidsList = snap.docs.map(d => d.data() as Kid);
+      this.kids.set(kidsList);
+      if (kidsList.length > 0) {
+        const current = this.selectedKid();
+        const existing = current ? kidsList.find(k => k.id === current.id) : null;
+        this.selectedKid.set(existing || kidsList[0]);
+      } else {
+        this.selectedKid.set(null);
+      }
+    } catch (e) {
+      console.warn('Failed to load kids:', e);
+      this.kids.set([]);
       this.selectedKid.set(null);
     }
   }
