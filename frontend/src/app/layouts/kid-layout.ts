@@ -1,9 +1,12 @@
 import { Component, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { KID_THEMES } from '../constants/app-data';
+
+interface NavItem { path: string; label: string; icon: string; safeIcon?: SafeHtml; }
 
 @Component({
   selector: 'app-kid-layout',
