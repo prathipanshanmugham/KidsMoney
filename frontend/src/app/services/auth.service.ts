@@ -47,8 +47,13 @@ export class AuthService {
   }
 
   private async loadParentProfile(uid: string) {
-    const snap = await getDoc(doc(this.firestore, 'users', uid));
-    return snap.exists() ? snap.data() : null;
+    try {
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+      const snap = await Promise.race([getDoc(doc(this.firestore, 'users', uid)), timeout]) as any;
+      return snap.exists() ? snap.data() : { uid, role: 'parent', full_name: 'Parent', email: '' };
+    } catch {
+      return { uid, role: 'parent', full_name: 'Parent', email: '' };
+    }
   }
 
   async loadKids() {
