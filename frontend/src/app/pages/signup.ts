@@ -62,10 +62,14 @@ export class SignupPage {
     if (this.password.length < 6) { this.error.set('Password must be at least 6 characters'); return; }
     this.loading.set(true); this.error.set('');
     try {
-      await this.auth.signup(this.fullName, this.email, this.password);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Please check your Firebase configuration.')), 15000));
+      await Promise.race([this.auth.signup(this.fullName, this.email, this.password), timeoutPromise]);
       this.router.navigate(['/dashboard']);
     } catch (err: any) {
-      this.error.set(err.message || 'Signup failed');
+      const msg = err?.code === 'auth/configuration-not-found'
+        ? 'Firebase Auth not configured. Please enable Email/Password sign-in in Firebase Console.'
+        : err?.message || 'Signup failed';
+      this.error.set(msg);
     } finally { this.loading.set(false); }
   }
 }
