@@ -32,7 +32,7 @@ interface NavItem { path: string; label: string; icon: string; safeIcon?: SafeHt
             <a [routerLink]="item.path" routerLinkActive="kid-active"
                [attr.data-testid]="'kid-nav-' + item.label.toLowerCase().replace(' ', '-')"
                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all kid-nav-item">
-              <span [innerHTML]="item.icon"></span>
+              <span [innerHTML]="item.safeIcon"></span>
               {{ item.label }}
             </a>
           }
@@ -85,7 +85,7 @@ interface NavItem { path: string; label: string; icon: string; safeIcon?: SafeHt
               @for (item of navItems; track item.path) {
                 <a [routerLink]="item.path" (click)="mobileMenu = false"
                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all kid-nav-item">
-                  <span [innerHTML]="item.icon"></span> {{ item.label }}
+                  <span [innerHTML]="item.safeIcon"></span> {{ item.label }}
                 </a>
               }
             </nav>
@@ -100,7 +100,7 @@ interface NavItem { path: string; label: string; icon: string; safeIcon?: SafeHt
           @for (item of mobileNavItems; track item.path) {
             <a [routerLink]="item.path" routerLinkActive="kid-mob-active" [attr.data-testid]="'kid-mob-' + item.label.toLowerCase()"
                class="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all" style="color: var(--fg-muted)">
-              <span [innerHTML]="item.icon"></span>
+              <span [innerHTML]="item.safeIcon"></span>
               <span class="text-[10px] font-medium">{{ item.label }}</span>
             </a>
           }
