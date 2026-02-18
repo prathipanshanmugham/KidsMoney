@@ -120,7 +120,7 @@ interface NavItem {
               @for (item of allNavItems; track item.path) {
                 <a [routerLink]="item.path" (click)="mobileMenu = false"
                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all nav-item">
-                  <span [innerHTML]="item.icon"></span>
+                  <span [innerHTML]="item.safeIcon"></span>
                   {{ item.label }}
                 </a>
               }
