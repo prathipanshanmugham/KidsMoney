@@ -48,7 +48,7 @@ interface NavItem {
             <a [routerLink]="item.path" routerLinkActive="active-nav"
                [attr.data-testid]="'nav-' + item.label.toLowerCase()"
                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all nav-item">
-              <span [innerHTML]="item.icon"></span>
+              <span [innerHTML]="item.safeIcon"></span>
               {{ item.label }}
             </a>
           }
@@ -57,7 +57,7 @@ interface NavItem {
         <div class="mt-auto space-y-2">
           <a routerLink="/settings" routerLinkActive="active-nav"
              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all nav-item" data-testid="nav-settings">
-            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-width="2"/></svg>
+            <span [innerHTML]="settingsNav.safeIcon"></span>
             Settings
           </a>
           <button (click)="doLogout()" data-testid="logout-btn"
