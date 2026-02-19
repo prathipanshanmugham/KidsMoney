@@ -13,7 +13,11 @@ Build a production-grade fintech-education SaaS application named "Kids Money" -
 ## Firebase Project
 - **Project ID:** child-fund-a531b
 - **Auth Domain:** child-fund-a531b.firebaseapp.com
-- **Status:** CONFIGURED (User confirmed Firestore is enabled)
+- **Firebase Auth Status:** ✅ WORKING (Email/Password sign-in enabled)
+- **Firestore Status:** ❌ NOT CONFIGURED (Database not created or rules blocking access)
+
+### Required Setup
+See `/app/frontend/FIREBASE_SETUP.md` for detailed instructions
 
 ## Core User Roles
 - **Parent (Admin):** Manages kid profiles, creates tasks, sets goals, monitors progress
