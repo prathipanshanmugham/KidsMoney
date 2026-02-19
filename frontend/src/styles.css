@@ -219,3 +219,90 @@ a { text-decoration: none; color: inherit; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* === CARD (Standard) === */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* === INPUT (Standard) === */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.875rem;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+.input::placeholder { color: var(--fg-muted); font-weight: 400; }
+select.input { cursor: pointer; }
+textarea.input { resize: vertical; min-height: 80px; }
+
+/* === LABEL (Standard) === */
+.label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  margin-bottom: 0.5rem;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+
+/* === BUTTON PRIMARY === */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px -3px rgba(13, 148, 136, 0.35);
+  font-size: 0.875rem;
+}
+.btn-primary:hover { background-color: #115E59; transform: scale(1.02); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* === BADGE === */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
+  background-color: var(--muted);
+}
+
+/* === PRIMARY COLOR CLASSES === */
+.bg-primary { background-color: var(--color-primary); }
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+
+/* === RING UTILITIES === */
+.ring-primary { --tw-ring-color: var(--color-primary); }
