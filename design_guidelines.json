@@ -1,157 +1,186 @@
 {
-  "identity": {
-    "name": "Kids Money",
-    "tagline": "Learn. Earn. Save. Grow.",
-    "tone": "Playful yet Professional (Apple meets Nintendo)",
-    "aesthetic": "Soft Minimalism, Rounded, Tactile, Gamified",
-    "target_audience": {
-      "primary": "Kids (6-16)",
-      "secondary": "Parents (25-45)"
-    }
+  "project_name": "Kids Money",
+  "design_philosophy": {
+    "identity": "E1: The Anti-AI Designer",
+    "core_aesthetic": "Apple-Inspired Neo-Minimalism",
+    "principles": [
+      "Fusion over Imitation: Apple cleanness mixed with Gamified joy.",
+      "Emotion First: Parents feel 'Secure Control', Kids feel 'Limitless Fun'.",
+      "Content is King: Data is beautiful. Numbers are art.",
+      "Zoom In: Big, bold metrics. Tiny details.",
+      "Negative Space: White space is a feature, not a bug."
+    ]
   },
   "typography": {
-    "font_family": {
-      "headings": "Outfit, sans-serif",
-      "body": "Inter, sans-serif"
+    "font_loading_strategy": "Load via Google Fonts in index.html",
+    "families": {
+      "headings": {
+        "name": "Plus Jakarta Sans",
+        "weights": ["600", "700", "800"],
+        "usage": "Landing Page Headings, Dashboard Section Titles, Marketing Text",
+        "cdn_url": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      },
+      "body": {
+        "name": "Manrope",
+        "weights": ["400", "500", "600"],
+        "usage": "Parent Dashboard Data, Forms, Inputs, dense information",
+        "cdn_url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap"
+      },
+      "kids": {
+        "name": "Fredoka",
+        "weights": ["500", "600", "700"],
+        "usage": "Kid Dashboard Headings, Buttons, Badges, Gamification Elements",
+        "cdn_url": "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap"
+      }
     },
-    "imports": [
-      "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');"
-    ],
     "scale": {
-      "h1": "text-4xl md:text-5xl font-bold tracking-tight",
-      "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
-      "h3": "text-2xl md:text-3xl font-semibold",
-      "body_lg": "text-lg leading-relaxed",
-      "body": "text-base leading-relaxed text-muted-foreground",
-      "caption": "text-sm text-muted-foreground font-medium uppercase tracking-wider"
+      "display_large": "text-5xl md:text-7xl font-extrabold tracking-tight leading-tight",
+      "display_medium": "text-4xl md:text-5xl font-bold tracking-tight",
+      "heading_1": "text-3xl font-bold tracking-tight",
+      "heading_2": "text-2xl font-semibold tracking-normal",
+      "body_large": "text-lg leading-relaxed",
+      "body_base": "text-base leading-relaxed text-slate-600 dark:text-slate-400",
+      "caption": "text-xs font-medium uppercase tracking-wider text-slate-500"
     }
   },
   "colors": {
-    "palette": {
-      "primary": {
-        "DEFAULT": "#4F7DF3",
-        "foreground": "#FFFFFF",
-        "hover": "#3B65D6",
-        "light": "#EBF2FF"
+    "theme_strategy": "System-based Dark/Light toggle. Default to Light for Parents, Dynamic for Kids.",
+    "palettes": {
+      "core_neutral": {
+        "canvas_light": "#F5F5F7",
+        "surface_light": "#FFFFFF",
+        "text_primary_light": "#1D1D1F",
+        "text_secondary_light": "#86868B",
+        "canvas_dark": "#000000",
+        "surface_dark": "#1C1C1E",
+        "text_primary_dark": "#F5F5F7",
+        "text_secondary_dark": "#86868B",
+        "border_light": "rgba(0,0,0,0.08)",
+        "border_dark": "rgba(255,255,255,0.12)"
       },
-      "secondary": {
-        "DEFAULT": "#34D399",
-        "foreground": "#FFFFFF",
-        "light": "#D1FAE5"
+      "parent_brand": {
+        "primary": "#0D9488",
+        "primary_hover": "#115E59",
+        "secondary": "#F0FDFA",
+        "accent": "#F43F5E",
+        "success": "#10B981",
+        "warning": "#F59E0B"
       },
-      "background": {
-        "light": "#F9FAFB",
-        "dark": "#0A0A0A"
-      },
-      "surface": {
-        "light": "#FFFFFF",
-        "dark": "#171717"
-      },
-      "accents": {
-        "yellow": "#FCD34D",
-        "purple": "#A78BFA",
-        "pink": "#F472B6",
-        "orange": "#FB923C"
+      "kid_themes": {
+        "boy": {
+          "primary": "#3B82F6",
+          "secondary": "#EFF6FF",
+          "accent": "#FACC15",
+          "gradient": "from-blue-500 to-cyan-400"
+        },
+        "girl": {
+          "primary": "#EC4899",
+          "secondary": "#FDF2F8",
+          "accent": "#A855F7",
+          "gradient": "from-pink-500 to-purple-400"
+        },
+        "neutral": {
+          "primary": "#10B981",
+          "secondary": "#ECFDF5",
+          "accent": "#F97316",
+          "gradient": "from-emerald-400 to-teal-400"
+        }
       }
-    },
-    "gradients": {
-      "primary_action": "bg-gradient-to-b from-[#4F7DF3] to-[#3B65D6]",
-      "card_shine": "bg-gradient-to-tr from-white/50 to-transparent",
-      "dark_surface": "bg-gradient-to-b from-white/5 to-transparent"
-    }
-  },
-  "layout": {
-    "grid_system": "Bento Grid (Asymmetrical)",
-    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
-    "spacing": {
-      "section": "py-12 md:py-24",
-      "card_padding": "p-6 md:p-8",
-      "gap": "gap-6 md:gap-8"
-    },
-    "border_radius": {
-      "card": "rounded-2xl md:rounded-3xl",
-      "button": "rounded-full",
-      "input": "rounded-xl"
-    }
-  },
-  "components": {
-    "buttons": {
-      "primary": "rounded-full px-8 py-6 font-semibold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all active:scale-95",
-      "secondary": "rounded-full px-6 py-6 font-medium bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors",
-      "ghost": "rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
-    },
-    "cards": {
-      "default": "bg-card text-card-foreground rounded-[24px] border-none shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] dark:shadow-none dark:bg-zinc-900/50 dark:border dark:border-white/5 overflow-hidden",
-      "interactive": "hover:-translate-y-1 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer",
-      "glass": "bg-white/70 dark:bg-black/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm"
-    },
-    "inputs": {
-      "default": "rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary h-12"
     }
   },
   "visual_enhancers": {
     "shadows": {
-      "soft": "shadow-[0_4px_20px_-8px_rgba(79,125,243,0.15)]",
-      "glow": "shadow-[0_0_30px_-10px_rgba(79,125,243,0.4)]"
+      "soft": "0 2px 8px -2px rgba(0,0,0,0.05), 0 4px 16px -4px rgba(0,0,0,0.02)",
+      "medium": "0 8px 24px -6px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.04)",
+      "floating": "0 20px 48px -12px rgba(0,0,0,0.12)",
+      "glow_blue": "0 0 20px rgba(59, 130, 246, 0.4)",
+      "glow_pink": "0 0 20px rgba(236, 72, 153, 0.4)"
     },
-    "motion": {
-      "hover_lift": "hover:-translate-y-1 transition-transform duration-300 ease-out",
-      "click_press": "active:scale-95 transition-transform duration-100",
-      "page_enter": "animate-in fade-in slide-in-from-bottom-4 duration-500"
+    "border_radius": {
+      "card": "rounded-2xl",
+      "button": "rounded-full",
+      "input": "rounded-xl"
     },
-    "glassmorphism": "backdrop-blur-md bg-white/60 dark:bg-black/60 supports-[backdrop-filter]:bg-background/60"
+    "glassmorphism": {
+      "light": "bg-white/70 backdrop-blur-xl border border-white/40 shadow-sm",
+      "dark": "bg-black/60 backdrop-blur-xl border border-white/10 shadow-sm",
+      "heavy": "backdrop-blur-2xl bg-white/40"
+    }
   },
-  "assets": {
-    "hero_images": [
-      {
-        "url": "https://images.unsplash.com/photo-1691302174719-d896b5270ed8?crop=entropy&cs=srgb&fm=jpg&q=85",
-        "alt": "Kids learning finance concept - Piggy banks",
-        "category": "hero"
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1760657045486-f455ffe66b45?crop=entropy&cs=srgb&fm=jpg&q=85",
-        "alt": "Coins falling into piggy bank",
-        "category": "savings"
-      }
-    ],
-    "avatars": [
-      {
-        "url": "https://images.unsplash.com/photo-1559358078-33f2e2c10199?crop=entropy&cs=srgb&fm=jpg&q=85",
-        "alt": "Wooden doll avatar",
-        "category": "avatar_default"
-      }
-    ],
-    "icons": {
-      "library": "lucide-react",
-      "style": "Rounded stroke, 2px width"
+  "layout_strategies": {
+    "landing_page": {
+      "type": "Single Column Scroll with Zig-Zag Features",
+      "hero_section": "Split Layout: Left Text (H1 + CTA) / Right Image (Floating 3D Element). Background: Subtle Mesh Gradient.",
+      "features_section": "Bento Grid or Alternating Side-by-Side. Large Icons.",
+      "footer": "Clean, 4-column, massive negative space."
     },
-    "placeholders": {
-      "tasks": "https://images.unsplash.com/photo-1651551515013-a5cf8862b646?crop=entropy&cs=srgb&fm=jpg&q=85",
-      "goals": "https://images.unsplash.com/photo-1651551514922-17863f746dbb?crop=entropy&cs=srgb&fm=jpg&q=85"
+    "parent_dashboard": {
+      "type": "Sidebar + Topbar + Content Grid",
+      "grid_system": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6",
+      "card_style": "Apple-style widgets. White/Dark Grey surface, soft shadow, internal padding p-6."
+    },
+    "kid_dashboard": {
+      "type": "Top-Heavy Hero + Scrollable Feed",
+      "hero_card": "Massive Card at top showing Balance & Level (Avatar on left, Progress on right).",
+      "action_grid": "2x2 Grid of big colorful buttons (Tasks, Goals, Send Money).",
+      "feed": "List of recent transactions with emoji icons."
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "px-8 py-3 bg-teal-600 text-white font-semibold rounded-full hover:bg-teal-700 hover:scale-105 transition-all shadow-lg shadow-teal-600/20",
+      "secondary": "px-8 py-3 bg-white text-slate-800 font-semibold rounded-full border border-slate-200 hover:bg-slate-50 transition-all",
+      "kid_action": "w-full aspect-square flex flex-col items-center justify-center gap-2 rounded-3xl text-white font-bold text-xl shadow-xl hover:scale-105 transition-transform"
+    },
+    "inputs": {
+      "default": "w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all outline-none font-medium"
+    },
+    "cards": {
+      "parent_widget": "bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-shadow",
+      "kid_task": "bg-white dark:bg-zinc-800 rounded-2xl p-4 flex items-center gap-4 border-l-4 border-teal-400 shadow-sm"
+    }
+  },
+  "image_assets": {
+    "hero_image": {
+      "url": "https://images.pexels.com/photos/11170467/pexels-photo-11170467.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Child saving money in teal piggy bank",
+      "usage": "Landing Page Hero Right Side"
+    },
+    "avatars": {
+      "boy": {
+        "url": "https://images.unsplash.com/photo-1562230778-25514c8237f1?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Boy Avatar Placeholder (Lego Style)"
+      },
+      "girl": {
+        "url": "https://images.unsplash.com/photo-1733765601550-0d79dc6566e2?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Girl Avatar Placeholder"
+      },
+      "neutral": {
+        "url": "https://images.unsplash.com/photo-1667753147067-87f4b81179c1?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Neutral Avatar Placeholder (Dino)"
+      }
+    },
+    "decorative": {
+      "coins": {
+        "url": "https://images.unsplash.com/photo-1643823062962-36e5ac74c868?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Flying Gold Coins"
+      }
     }
   },
   "instructions_to_main_agent": [
-    "CRITICAL: Use .jsx extension for all components. TypeScript is NOT configured.",
-    "Implement 'Outfit' font for all Headings (h1-h3) and 'Inter' for Body.",
-    "Use the exact primary color #4F7DF3. Do not use default Tailwind blue.",
-    "Border Radius Strategy: Use 'rounded-3xl' for main cards, 'rounded-2xl' for inner cards, 'rounded-full' for buttons.",
-    "Shadows: Avoid harsh black shadows. Use colored shadows (primary/10) for a soft feel.",
-    "Dark Mode: Ensure all cards have a 1px border-white/5 in dark mode to separate them from the background.",
-    "Navigation: Use a bottom tab bar for mobile view and a clean sidebar for desktop.",
-    "Gamification: Use progress bars with 'bg-secondary' (Mint) to show positive growth.",
-    "Accessibility: Ensure text contrast ratio is > 4.5:1. Use 'text-foreground' on 'bg-background'.",
-    "Forms: Use Shadcn Form components but override styles to match the 'rounded-xl' input style.",
-    "Charts: Use Recharts with the 'Soft Pastel' palette defined in colors.",
-    "Toast: Use 'sonner' for notifications."
+    "1. INSTALL FONTS: Add the Google Fonts links to `src/index.html` immediately.",
+    "2. SETUP TAILWIND: Configure `tailwind.config.js` to extend colors with the `parent_brand` and `kid_themes` palettes.",
+    "3. CREATE LAYOUTS: Use `kid-layout.ts` and `parent-layout.ts` to implement the specific shell structures.",
+    "4. GLASSMORPHISM: Apply the `glassmorphism` classes to the Sidebar and Topbar.",
+    "5. DARK MODE: Ensure every color class has a `dark:` variant.",
+    "6. ANGULAR ICONS: Use Lucide-Angular or inline SVGs. Do not install heavy icon libraries.",
+    "7. DATA-TESTID: Add `data-testid` to every interactive element (buttons, inputs, cards)."
   ],
   "universal_guidelines": [
-    "You tend to converge toward generic outputs. Avoid this.",
-    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
-    "Create depth through layered design elements with z-index hierarchy",
-    "Use glass-morphism effects with backdrop filters (12-24px blur)",
-    "Every interaction needs micro-animations - hover states, transitions.",
-    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
-    "NEVER use generic AI emojis. Use Lucide icons or specific SVG assets.",
-    "All interactive elements MUST include data-testid attribute."
+    "Avoid generic centered layouts. Use asymmetry.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Every interaction needs micro-animations.",
+    "Never use pure black #000000 (except for Apple aesthetic specific dark modes) or pure grey.",
+    "Ensure 4.5:1 contrast ratio for text."
   ]
 }
