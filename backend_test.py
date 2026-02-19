@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 class KidsMoneyAPITester:
-    def __init__(self, base_url="https://finlit-kids-ui.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://finlit-firebase-app.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.test_user_email = f"test_{int(datetime.now().timestamp())}@example.com"

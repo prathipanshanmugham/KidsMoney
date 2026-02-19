@@ -11,7 +11,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://finlit-kids-ui.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://finlit-firebase-app.preview.emergentagent.com').rstrip('/')
 
 # Test data with unique identifiers to avoid conflicts
 TEST_ID = str(uuid.uuid4())[:8]
