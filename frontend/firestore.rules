@@ -1,0 +1,61 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection - parents only
+    match /users/{userId} {
+      // Allow read/write only if the user is authenticated and accessing their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow read by any authenticated user (for kid login to find parent)
+      allow read: if request.auth != null;
+    }
+    
+    // Kids collection
+    match /kids/{kidId} {
+      // Parents can read/write their own kids
+      allow read, write: if request.auth != null && 
+        (resource == null || resource.data.parent_uid == request.auth.uid);
+      // Allow create if the parent_uid matches the authenticated user
+      allow create: if request.auth != null && 
+        request.resource.data.parent_uid == request.auth.uid;
+      // Allow read for kid login lookup
+      allow read: if request.auth != null;
+    }
+    
+    // Wallets collection
+    match /wallets/{kidId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Transactions collection
+    match /transactions/{txnId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Goals collection
+    match /goals/{goalId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // SIPs collection
+    match /sips/{sipId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Loans collection
+    match /loans/{loanId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Learning progress collection
+    match /learning_progress/{progressId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
