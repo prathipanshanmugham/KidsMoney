@@ -11,13 +11,10 @@ Build a production-grade fintech-education SaaS application named "Kids Money" -
 - **Hosting:** Angular dev server on port 3000 (Emergent preview)
 
 ## Firebase Project
-- **Project ID:** child-fund-a531b
-- **Auth Domain:** child-fund-a531b.firebaseapp.com
-- **Firebase Auth Status:** ✅ WORKING (Email/Password sign-in enabled)
-- **Firestore Status:** ❌ NOT CONFIGURED (Database not created or rules blocking access)
-
-### Required Setup
-See `/app/frontend/FIREBASE_SETUP.md` for detailed instructions
+- **Project ID:** sample-firebase-ai-app-2775f
+- **Auth Domain:** sample-firebase-ai-app-2775f.firebaseapp.com
+- **Firebase Auth Status:** ✅ WORKING
+- **Firestore Status:** ✅ WORKING
 
 ## Core User Roles
 - **Parent (Admin):** Manages kid profiles, creates tasks, sets goals, monitors progress
